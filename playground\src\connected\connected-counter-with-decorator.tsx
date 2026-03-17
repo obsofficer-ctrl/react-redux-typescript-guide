@@ -1,28 +1,30 @@
+// NOTE: Requires "experimentalDecorators": true in tsconfig.json
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { RootState } from '../store/types';
 import { countersActions } from '../features/counters';
 
-// Props from the parent component
+// Props passed from the parent (own props)
 interface OwnProps {
   label: string;
 }
 
-// Props from Redux state
+// Props mapped from Redux state
 interface StateProps {
   count: number;
 }
 
-// Props from Redux dispatch
+// Props mapped from Redux dispatch
 interface DispatchProps {
   onIncrement: () => void;
   onDecrement: () => void;
 }
 
+// Combined props type for the component
 type Props = OwnProps & StateProps & DispatchProps;
 
-const mapStateToProps = (state: RootState, ownProps: OwnProps): StateProps => ({
+const mapStateToProps = (state: RootState, _ownProps: OwnProps): StateProps => ({
   count: state.counters.reduxCounter,
 });
 
@@ -42,6 +44,7 @@ const mapDispatchToProps = (dispatch: Dispatch): DispatchProps =>
 class ConnectedCounterWithDecorator extends Component<Props> {
   render() {
     const { label, count, onIncrement, onDecrement } = this.props;
+
     return (
       <div>
         <span>
