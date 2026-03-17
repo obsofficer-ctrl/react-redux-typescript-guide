@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 
 import { ConnectedTodoList, Todo } from './generic-list-connected';
 
+/** Store Setup */
 type StoreState = {
   readonly todos: Todo[];
 };
@@ -16,18 +17,23 @@ const initialState: StoreState = {
   ],
 };
 
-const reducer = (state: StoreState = initialState): StoreState => state;
+function reducer(state: StoreState = initialState): StoreState {
+  return state;
+}
 
 const store = createStore(reducer);
 
-const itemRenderer = (item: Todo): JSX.Element => (
+/** Item Renderer */
+const todoItemRenderer = (item: Todo): JSX.Element => (
   <span>
     [{item.completed ? 'x' : ' '}] {item.title}
   </span>
 );
 
-export const App = () => (
+/** Usage */
+export const App: React.FC = () => (
   <Provider store={store}>
-    <ConnectedTodoList itemRenderer={itemRenderer} />
+    {/* `items` is injected by connect; only `itemRenderer` needs to be supplied */}
+    <ConnectedTodoList itemRenderer={todoItemRenderer} />
   </Provider>
 );
