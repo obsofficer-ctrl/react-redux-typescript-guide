@@ -9,7 +9,8 @@ export const actions = {
   pong: createAction('PONG')<{ id: number }>(),
 };
 
-// Using typeof to infer dispatched action creator types in Props
+// Using typeof to infer dispatched action creator types in Props interface
+// This ensures the component's props always match the action creator signatures
 interface Props {
   ping: typeof actions.ping;
   pong: typeof actions.pong;
