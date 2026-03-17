@@ -3,44 +3,48 @@ import { connect } from 'react-redux';
 
 import { RootState } from '../store/types';
 
-// Generic List Component
+// Generic List Component (reusable)
 export type GenericListProps<T> = {
-  items: T[];
-  itemRenderer: (item: T) => JSX.Element;
+  readonly items: T[];
+  readonly itemRenderer: (item: T) => JSX.Element;
 };
 
-export class GenericList<T> extends React.Component<GenericListProps<T>, {}> {
+export class GenericList<T> extends React.Component<GenericListProps<T>> {
   render() {
     const { items, itemRenderer } = this.props;
     return (
-      <div>
-        {items.map(item => itemRenderer(item))}
-      </div>
+      <ul>
+        {items.map((item, i) => (
+          <li key={i}>{itemRenderer(item)}</li>
+        ))}
+      </ul>
     );
   }
 }
 
-// Usage with a concrete type
+// Concrete type for the connected example
 export type Todo = {
-  id: number;
-  title: string;
-  completed: boolean;
+  readonly id: number;
+  readonly title: string;
+  readonly completed: boolean;
 };
 
-// Concrete connected component using GenericList<Todo>
-type OwnProps = {};
+// State shape expected (you would normally import from store types)
+type OwnProps = {
+  readonly title: string;
+};
 
-const mapStateToProps = (state: RootState, _ownProps: OwnProps): GenericListProps<Todo> => ({
+// Since TypeScript does not support parameterized generic JSX in connect(),
+// the workaround is to create a concrete subclass and connect that instead.
+class TodoList extends GenericList<Todo> {}
+
+const mapStateToProps = (state: RootState, ownProps: OwnProps): GenericListProps<Todo> => ({
   items: state.todos.items as Todo[],
   itemRenderer: (item: Todo) => (
     <div key={item.id}>
-      {item.title} - {item.completed ? 'Done' : 'Pending'}
+      [{item.completed ? 'x' : ' '}] {item.title}
     </div>
   ),
 });
-
-// Since TypeScript doesn't support generic JSX syntax like `connect<...>()(Component<T>)`,
-// we create a concrete class that extends the generic component.
-class TodoList extends GenericList<Todo> {}
 
 export const ConnectedTodoList = connect(mapStateToProps)(TodoList);
