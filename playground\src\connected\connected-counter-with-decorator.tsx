@@ -21,7 +21,7 @@ interface DispatchProps {
   onDecrement: () => void;
 }
 
-// All props combined — used as the component's Props type
+// All props combined — used as the component Props type
 type Props = OwnProps & StateProps & DispatchProps;
 
 const mapStateToProps = (
@@ -40,7 +40,8 @@ const mapDispatchToProps = (dispatch: Dispatch): DispatchProps =>
     dispatch
   );
 
-// Using @connect decorator — equivalent to:
+// Using @connect decorator
+// Equivalent to:
 // export default connect(mapStateToProps, mapDispatchToProps)(ConnectedCounterWithDecorator)
 @connect<StateProps, DispatchProps, OwnProps, RootState>(
   mapStateToProps,
