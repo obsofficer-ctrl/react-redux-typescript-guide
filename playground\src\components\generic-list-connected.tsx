@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-// Generic List Component
+/** Generic List Component */
 export type GenericListProps<T> = {
   readonly items: T[];
   readonly itemRenderer: (item: T) => JSX.Element;
@@ -12,52 +12,48 @@ export class GenericList<T> extends React.Component<GenericListProps<T>> {
     const { items, itemRenderer } = this.props;
     return (
       <ul>
-        {items.map((item, i) => (
-          <li key={i}>{itemRenderer(item)}</li>
+        {items.map((item, idx) => (
+          <li key={idx}>{itemRenderer(item)}</li>
         ))}
       </ul>
     );
   }
 }
 
-// Concrete type to be used in the connected example
+/**
+ * Connected Generic List
+ *
+ * TypeScript does not allow parameterized generic JSX type arguments, so we
+ * cannot write: connect(...)(GenericList<Todo>)
+ *
+ * The recommended workaround is:
+ *   1. Define the concrete item type (e.g. Todo)
+ *   2. Create a concrete subclass of GenericList that fixes the type parameter
+ *   3. Connect the concrete subclass
+ */
+
 export type Todo = {
   readonly id: number;
   readonly title: string;
   readonly completed: boolean;
 };
 
-// Connected Component
-// TypeScript does not support parameterized generic arguments in JSX,
-// e.g.: connect(...)(GenericList<Todo>) is not valid syntax.
-// Workaround: Create a concrete subclass that fixes the generic parameter,
-// then connect the concrete subclass.
-
-type ConnectedState = {
-  todos: {
-    items: Todo[];
-  };
+type StoreState = {
+  readonly todos: Todo[];
 };
 
-type OwnProps = {
-  readonly title?: string;
-};
+type OwnProps = {};
 
-// Step 1: Create a concrete (non-generic) subclass
+// Step 1 – Concrete subclass (fixes the generic parameter to `Todo`)
 class TodoList extends GenericList<Todo> {}
 
-// Step 2: Map state to the props of the concrete subclass
+// Step 2 – Map Redux state to the props of the concrete list
 const mapStateToProps = (
-  state: ConnectedState,
+  state: StoreState,
   _ownProps: OwnProps
-): GenericListProps<Todo> => ({
-  items: state.todos.items,
-  itemRenderer: (item: Todo) => (
-    <div key={item.id}>
-      [{item.completed ? 'x' : ' '}] {item.title}
-    </div>
-  ),
+): Pick<GenericListProps<Todo>, 'items'> => ({
+  items: state.todos,
 });
 
-// Step 3: Connect the concrete subclass
+// Step 3 – Connect the concrete subclass
 export const ConnectedTodoList = connect(mapStateToProps)(TodoList);
