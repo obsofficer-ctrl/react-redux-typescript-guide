@@ -23,13 +23,12 @@ export class GenericList<T> extends React.Component<GenericListProps<T>> {
 /**
  * Connected Generic List
  *
- * TypeScript does not allow parameterized generic JSX type arguments, so we
- * cannot write: connect(...)(GenericList<Todo>)
+ * TypeScript does not allow parameterized generic type arguments in JSX, so
+ * `connect(...)(GenericList<Todo>)` is not valid syntax.
  *
- * The recommended workaround is:
- *   1. Define the concrete item type (e.g. Todo)
- *   2. Create a concrete subclass of GenericList that fixes the type parameter
- *   3. Connect the concrete subclass
+ * Workaround:
+ *  1. Fix the generic type parameter via a concrete subclass
+ *  2. Connect the concrete subclass
  */
 
 export type Todo = {
@@ -44,10 +43,10 @@ type StoreState = {
 
 type OwnProps = {};
 
-// Step 1 – Concrete subclass (fixes the generic parameter to `Todo`)
+// Step 1 – Concrete subclass fixes the type parameter to `Todo`
 class TodoList extends GenericList<Todo> {}
 
-// Step 2 – Map Redux state to the props of the concrete list
+// Step 2 – mapStateToProps typed against the concrete props
 const mapStateToProps = (
   state: StoreState,
   _ownProps: OwnProps
@@ -55,5 +54,5 @@ const mapStateToProps = (
   items: state.todos,
 });
 
-// Step 3 – Connect the concrete subclass
+// Step 3 – connect the concrete subclass
 export const ConnectedTodoList = connect(mapStateToProps)(TodoList);
