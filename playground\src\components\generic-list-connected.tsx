@@ -1,9 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import { RootState } from '../store/types';
-
-// Generic List Component (reusable)
+// Generic List Component
 export type GenericListProps<T> = {
   readonly items: T[];
   readonly itemRenderer: (item: T) => JSX.Element;
@@ -22,24 +20,38 @@ export class GenericList<T> extends React.Component<GenericListProps<T>> {
   }
 }
 
-// Concrete type for the connected example
+// Concrete type to be used in the connected example
 export type Todo = {
   readonly id: number;
   readonly title: string;
   readonly completed: boolean;
 };
 
-// State shape expected (you would normally import from store types)
-type OwnProps = {
-  readonly title: string;
+// Connected Component
+// TypeScript does not support parameterized generic arguments in JSX,
+// e.g.: connect(...)(GenericList<Todo>) is not valid syntax.
+// Workaround: Create a concrete subclass that fixes the generic parameter,
+// then connect the concrete subclass.
+
+type ConnectedState = {
+  todos: {
+    items: Todo[];
+  };
 };
 
-// Since TypeScript does not support parameterized generic JSX in connect(),
-// the workaround is to create a concrete subclass and connect that instead.
+type OwnProps = {
+  readonly title?: string;
+};
+
+// Step 1: Create a concrete (non-generic) subclass
 class TodoList extends GenericList<Todo> {}
 
-const mapStateToProps = (state: RootState, ownProps: OwnProps): GenericListProps<Todo> => ({
-  items: state.todos.items as Todo[],
+// Step 2: Map state to the props of the concrete subclass
+const mapStateToProps = (
+  state: ConnectedState,
+  _ownProps: OwnProps
+): GenericListProps<Todo> => ({
+  items: state.todos.items,
   itemRenderer: (item: Todo) => (
     <div key={item.id}>
       [{item.completed ? 'x' : ' '}] {item.title}
@@ -47,4 +59,5 @@ const mapStateToProps = (state: RootState, ownProps: OwnProps): GenericListProps
   ),
 });
 
+// Step 3: Connect the concrete subclass
 export const ConnectedTodoList = connect(mapStateToProps)(TodoList);
